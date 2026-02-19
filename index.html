@@ -1,58 +1,57 @@
 <!doctype html>
-<html
-  {% if request.design_mode %}
-    class="shopify-design-mode"
-  {% endif %}
-  lang="{{ request.locale.iso_code }}"
->
+<html lang="es">
   <head>
-    {%- if settings.favicon != blank -%}
-      <link
-        rel="icon"
-        type="image/png"
-        href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
-      >
-    {%- endif -%}
+    <!-- Favicon (valor estático de ejemplo) -->
+    <link
+      rel="icon"
+      type="image/png"
+      href="favicon.png"
+    >
 
-    {% comment %} This a way to wait for main content to load when navigating to a new page so that the view transitions can work consistently {% endcomment %}
-    {% if settings.transition_to_main_product or settings.page_transition_enabled %}
-      <link
-        rel="expect"
-        href="#MainContent"
-        blocking="render"
-        id="view-transition-render-blocker"
-      >
-    {% endif %}
+    <!-- Meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    {%- render 'meta-tags' -%}
-    {%- render 'stylesheets' -%}
-    {%- render 'fonts' -%}
-    {%- render 'scripts' -%}
-    {%- render 'theme-styles-variables' -%}
-    {%- render 'color-schemes' -%}
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
 
-    {% if request.design_mode %}
-      {%- render 'theme-editor' -%}
-    {% endif %}
+    <!-- Fonts -->
+    <link rel="stylesheet" href="fonts.css">
 
-    {{ content_for_header }}
+    <!-- Scripts -->
+    <script src="scripts.js" defer></script>
+
+    <!-- Variables y esquemas de color -->
+    <link rel="stylesheet" href="theme-variables.css">
+    <link rel="stylesheet" href="color-schemes.css">
+
+    <title>Mi Sitio Web</title>
   </head>
 
-  <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
-    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+  <body class="page-width-container card-hover-effect-default">
+
+    <!-- Skip to content -->
+    <a href="#MainContent" class="skip-to-content">
+      Saltar al contenido
+    </a>
+
+    <!-- Header Group -->
     <div id="header-group">
-      {% sections 'header-group' %}
+      <header id="header-component" class="header-section">
+        <div class="logo">LOGO</div>
+        <nav>
+          <ul>
+            <li><a href="#">Inicio</a></li>
+            <li><a href="#">Productos</a></li>
+            <li><a href="#">Contacto</a></li>
+          </ul>
+        </nav>
+      </header>
     </div>
 
     <script>
-      // Inline header height and menu style calculations to prevent layout shift
-      // Note: Updates in calculateHeaderGroupHeight(), updateTransparentHeaderOffset() and setHeaderMenuStyle() utilities.js should be kept in sync with this function
       (function setHeaderHeighCustomProperties() {
-        /*
-         * Header calculation functions for maintaining CSS variables
-         * Mimic calculateHeaderGroupHeight() in utilities.js
-         */
-        const header = document.querySelector('header-component');
+        const header = document.querySelector('header');
         const headerGroup = document.querySelector('#header-group');
         const hasHeaderSection = headerGroup?.querySelector('.header-section');
 
@@ -60,7 +59,6 @@
 
         const headerHeight = header.offsetHeight;
 
-        // Calculate the total height of the header group
         let headerGroupHeight = 0;
         const children = headerGroup.children;
         for (let i = 0; i < children.length; i++) {
@@ -69,27 +67,15 @@
           headerGroupHeight += element.offsetHeight;
         }
 
-        // Check for transparent header special case
-        if (header.hasAttribute('transparent') && header.parentElement?.nextElementSibling) {
-          headerGroupHeight += headerHeight;
-        }
-
-        // Set CSS variables
         document.body.style.setProperty('--header-height', `${headerHeight}px`);
         document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
 
-        /**
-         * Updates CSS custom properties for transparent header offset calculation
-         * Mimic updateTransparentHeaderOffset() in utilities.js
-         */
-
-        if (!hasHeaderSection || !header?.hasAttribute('transparent')) {
+        if (!hasHeaderSection) {
           document.body.style.setProperty('--transparent-header-offset-boolean', '0');
           return;
         }
 
         const hasImmediateSection = hasHeaderSection.nextElementSibling?.classList.contains('shopify-section');
-
         const shouldApplyOffset = !hasImmediateSection ? '1' : '0';
         document.body.style.setProperty('--transparent-header-offset-boolean', shouldApplyOffset);
       })();
@@ -98,30 +84,42 @@
         const headerComponent = document.querySelector('#header-component');
         if (headerComponent) {
           const isTouchDevice = 'ontouchstart' in window && navigator.maxTouchPoints > 0;
-          const overflowList = headerComponent?.querySelector('overflow-list');
-          const hasReachedMinimum = overflowList && overflowList.hasAttribute('minimum-reached');
-          headerComponent.dataset.menuStyle = isTouchDevice || hasReachedMinimum ? 'drawer' : 'menu';
+          headerComponent.dataset.menuStyle = isTouchDevice ? 'drawer' : 'menu';
         }
       })();
     </script>
 
+    <!-- Main Content -->
     <main
       id="MainContent"
       class="content-for-layout"
       role="main"
-      data-page-transition-enabled="{{ settings.page_transition_enabled }}"
-      data-product-transition="{{ settings.transition_to_main_product }}"
-      data-template="{{ template }}"
+      data-page-transition-enabled="false"
+      data-product-transition="false"
+      data-template="index"
     >
-      {{ content_for_layout }}
+      <section>
+        <h1>Contenido principal</h1>
+        <p>Aquí va el contenido de la página.</p>
+      </section>
     </main>
 
-    {% sections 'footer-group' %}
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <p>© 2026 Mi Sitio Web</p>
+      </div>
+    </footer>
 
-    {% render 'search-modal' %}
+    <!-- Search Modal -->
+    <div id="search-modal" hidden>
+      <input type="text" placeholder="Buscar...">
+    </div>
 
-    {% if settings.quick_add or settings.mobile_quick_add %}
-      {% render 'quick-add-modal' %}
-    {% endif %}
+    <!-- Quick Add Modal -->
+    <div id="quick-add-modal" hidden>
+      <p>Agregar producto rápidamente</p>
+    </div>
+
   </body>
 </html>
